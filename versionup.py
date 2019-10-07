@@ -28,6 +28,11 @@ def call(cmd):
     print(proc.stderr.decode())
 
 
+def add(files: Iterable[str]):
+    cmd = ["git", "add"] + list(files)
+    call(cmd)
+
+
 def commit(old_version, new_version):
     cmd = [
         "git",
@@ -44,26 +49,34 @@ def tag(tagname):
     call(cmd)
 
 
+SETUP_CFG = "setup.cfg"
+VERSIONUP = "versionup"
+
+
 def main():
     config = configparser.ConfigParser()
-    config.read("setup.cfg")
+    config.read(SETUP_CFG)
     old_version = config["metadata"]["version"]
     new_version = sys.argv[1]
     config["metadata"]["version"] = new_version
-    with open("setup.cfg", "w") as f:
+    with open(SETUP_CFG, "w") as f:
         config.write(f)
-    print("Update: setup.cfg")
+    print(f"Update: {SETUP_CFG}")
 
-    VERSIONUP = "versionup"
     if VERSIONUP in config:
         vcfg = config[VERSIONUP]
         files = vcfg.get("files")
         if files:
-            rewrite_version(vcfg["files"].split("\n"), old_version, new_version)
+            files = list(filter(lambda x: x != "", files.split("\n")))
+            rewrite_version(files, old_version, new_version)
+        else:
+            files = []
         if vcfg.get("commit") == "True":
+            add([SETUP_CFG] + files)
             commit(old_version, new_version)
-        if vcfg.get("tag") == "True":
-            tag(new_version)
+
+            if vcfg.get("tag") == "True":
+                tag(new_version)
 
 
 if __name__ == "__main__":
