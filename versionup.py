@@ -4,6 +4,8 @@ from pathlib import Path
 from typing import Iterable
 import subprocess
 
+__version__ = "v0.0.0"
+
 
 def versionup(p: Path, old, new):
     with p.open() as f:
@@ -17,7 +19,7 @@ def rewrite_version(filenames: Iterable[str], old, new):
         if fname:
             p = Path(fname)
             versionup(p, old, new)
-            print(f"rewrite version: {str(p)}")
+            print(f"Update: {str(p)}")
 
 
 def call(cmd):
@@ -50,11 +52,14 @@ def main():
     config["metadata"]["version"] = new_version
     with open("setup.cfg", "w") as f:
         config.write(f)
+    print("Update: setup.cfg")
 
-    if "versioning" in config:
-        vcfg = config["versioning"]
-        rewrite_version(vcfg["files"].split("\n"), old_version, new_version)
-
+    VERSIONUP = "versionup"
+    if VERSIONUP in config:
+        vcfg = config[VERSIONUP]
+        files = vcfg.get("files")
+        if files:
+            rewrite_version(vcfg["files"].split("\n"), old_version, new_version)
         if vcfg.get("commit") == "True":
             commit(old_version, new_version)
         if vcfg.get("tag") == "True":
