@@ -4,7 +4,7 @@ from pathlib import Path
 from typing import Iterable
 import subprocess
 
-__version__ = "v0.0.0"
+__version__ = "v0.0.2"
 
 
 def versionup(p: Path, old, new):
