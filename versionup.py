@@ -3,12 +3,15 @@ import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
+from typing_extensions import Literal
 from typing import (
+    Any,
     Iterable,
-    Literal,
+    List,
     Mapping,
     NamedTuple,
     Optional,
+    Union,
 )
 
 import toml
@@ -64,7 +67,7 @@ VERSIONUP = "versionup"
 
 
 @dataclass
-class Config(NamedTuple):
+class Config:
     config: Mapping
     type_: Literal["setup", "poetry"]
 
@@ -87,6 +90,36 @@ class Config(NamedTuple):
     def versionup_config(self) -> Optional[Mapping]:
         return self.config.get("versionup", None)
 
+    @property
+    def target_files(self) -> List[str]:
+        config = self.versionup_config
+        if config:
+            files: Union[str, List[str], None] = config.get("files")
+            if isinstance(files, str):
+                files = list(filter(lambda x: x != "", files.split("\n")))
+            if files:
+                return files
+        return []
+
+    @property
+    def commit(self) -> bool:
+        return self.vcfg_attr("commit")
+
+    @property
+    def tag(self) -> bool:
+        return self.vcfg_attr("tag")
+
+    def vcfg_attr(self, key: str, default=False) -> Any:
+        vcfg = self.versionup_config
+        return self.check_bool(vcfg.get(key, default), default=default)
+
+    def check_bool(self, val: Union[str, bool], default=False) -> bool:
+        if isinstance(val, bool):
+            return val
+        if val.lower() == "true":
+            return True
+        return default
+
 
 def get_config() -> Config:
     if Path(SETUP_CFG).exists():
@@ -105,17 +138,12 @@ def main():
 
     vcfg = config.versionup_config
     if vcfg:
-        files = vcfg.get("files")
-        if files:
-            files = list(filter(lambda x: x != "", files.split("\n")))
-            rewrite_version(files, old_version, new_version)
-        else:
-            files = []
-        if vcfg.get("commit") == "True":
-            add([SETUP_CFG] + files)
+        rewrite_version(config.target_files, old_version, new_version)
+        if config.commit:
+            add([SETUP_CFG] + config.target_files)
             commit(old_version, new_version)
 
-            if vcfg.get("tag") == "True":
+            if config.tag:
                 tag(new_version)
 
 
