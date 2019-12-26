@@ -2,7 +2,7 @@ import configparser
 import subprocess
 import sys
 from pathlib import Path
-from typing import Iterable
+from typing import ItemsView, Iterable, Mapping
 
 __version__ = "0.0.3"
 
@@ -50,18 +50,36 @@ def tag(tagname):
 
 
 SETUP_CFG = "setup.cfg"
+PYPROJECT = "pyproject.toml"
 VERSIONUP = "versionup"
 
 
+def get_oldversion(config: Mapping) -> str:
+    version = config.get("metadata", {}).get("version", "")
+    if not version:
+        version = config.get("tool", {}).get("poetry", {}).get("version", "")
+    if not version:
+        raise ValueError()
+    return version
+
+
+import toml
+
+
+def get_config() -> Mapping:
+    if Path(SETUP_CFG).exists():
+        config = configparser.ConfigParser()
+        config.read(SETUP_CFG)
+        return config
+    if Path(PYPROJECT).exists():
+        return toml.load(PYPROJECT)
+    raise ValueError()
+
+
 def main():
-    config = configparser.ConfigParser()
-    config.read(SETUP_CFG)
-    old_version = config["metadata"]["version"]
     new_version = sys.argv[1]
-    config["metadata"]["version"] = new_version
-    with open(SETUP_CFG, "w") as f:
-        config.write(f)
-    print(f"Update: {SETUP_CFG}")
+    config = get_config()
+    old_version = get_oldversion(config)
 
     if VERSIONUP in config:
         vcfg = config[VERSIONUP]
