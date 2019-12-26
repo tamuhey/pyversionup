@@ -157,6 +157,7 @@ def main():
     print("Load type: ", config.type_)
     old_version = config.version
     config.version = new_version
+    print(config)
 
     vcfg = config.versionup_config
     if vcfg:
