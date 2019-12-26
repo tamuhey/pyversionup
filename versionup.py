@@ -12,11 +12,12 @@ from typing import (
     NamedTuple,
     Optional,
     Union,
+    cast,
 )
 
 import toml
 
-__version__ = "0.0.3"
+__version__ = "v0.0.4.dev0"
 
 
 def versionup(p: Path, old, new):
@@ -65,11 +66,25 @@ SETUP_CFG = "setup.cfg"
 PYPROJECT = "pyproject.toml"
 VERSIONUP = "versionup"
 
+FNAME = {"setup": SETUP_CFG, "poetry": PYPROJECT}
+
 
 @dataclass
 class Config:
     config: Mapping
     type_: Literal["setup", "poetry"]
+
+    def save(self):
+        if self.type_ == "setup":
+            with open(SETUP_CFG, "w") as f:
+                cast(configparser.ConfigParser, self.config).write(f)
+        if self.type_ == "poetry":
+            with open(PYPROJECT, "w") as f:
+                toml.dump(self.config, PYPROJECT)
+
+    @property
+    def fname(self) -> str:
+        return FNAME[self.type_]
 
     @property
     def version(self) -> str:
@@ -135,12 +150,13 @@ def main():
     new_version = sys.argv[1]
     config = get_config()
     old_version = config.version
+    config.version = new_version
 
     vcfg = config.versionup_config
     if vcfg:
         rewrite_version(config.target_files, old_version, new_version)
         if config.commit:
-            add([SETUP_CFG] + config.target_files)
+            add([config.fname] + config.target_files)
             commit(old_version, new_version)
 
             if config.tag:
