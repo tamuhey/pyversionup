@@ -82,7 +82,7 @@ class Config:
                 cast(configparser.ConfigParser, self.config).write(f)
         if self.type_ == POETRY:
             with open(PYPROJECT, "w") as f:
-                toml.dump(self.config, PYPROJECT)
+                toml.dump(self.config, f)
 
     @property
     def fname(self) -> str:
@@ -167,6 +167,7 @@ def main():
 
             if config.tag:
                 tag(new_version)
+    config.save()
 
 
 if __name__ == "__main__":
