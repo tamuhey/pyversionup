@@ -65,8 +65,10 @@ def tag(tagname):
 SETUP_CFG = "setup.cfg"
 PYPROJECT = "pyproject.toml"
 VERSIONUP = "versionup"
+POETRY = "poetry"
+SETUP = "setup"
 
-FNAME = {"setup": SETUP_CFG, "poetry": PYPROJECT}
+FNAME = {SETUP: SETUP_CFG, POETRY: PYPROJECT}
 
 
 @dataclass
@@ -75,10 +77,10 @@ class Config:
     type_: Literal["setup", "poetry"]
 
     def save(self):
-        if self.type_ == "setup":
+        if self.type_ == SETUP:
             with open(SETUP_CFG, "w") as f:
                 cast(configparser.ConfigParser, self.config).write(f)
-        if self.type_ == "poetry":
+        if self.type_ == POETRY:
             with open(PYPROJECT, "w") as f:
                 toml.dump(self.config, PYPROJECT)
 
@@ -88,18 +90,21 @@ class Config:
 
     @property
     def version(self) -> str:
-        if self.type_ == "setup":
+        if self.type_ == SETUP:
             return self.config["metadata"]["version"]
-        if self.type_ == "poetry":
-            return self.config["tool"]["poetry"]["version"]
+        if self.type_ == POETRY:
+            return self.config["tool"][POETRY]["version"]
         raise ValueError()
 
     @version.setter
     def version(self, version: str):
-        if self.type_ == "setup":
+        if self.type_ == SETUP:
             self.config["metadata"]["version"] = version
-        if self.type_ == "poetry":
-            self.config["tool"]["poetry"]["version"] = version
+            return
+        if self.type_ == POETRY:
+            self.config["tool"][POETRY]["version"] = version
+            return
+        raise ValueError()
 
     @property
     def versionup_config(self) -> Optional[Mapping]:
@@ -140,15 +145,16 @@ def get_config() -> Config:
     if Path(SETUP_CFG).exists():
         config = configparser.ConfigParser()
         config.read(SETUP_CFG)
-        return Config(config, "setup")
+        return Config(config, SETUP)
     if Path(PYPROJECT).exists():
-        return Config(toml.load(PYPROJECT), "poetry")
+        return Config(toml.load(PYPROJECT), POETRY)
     raise ValueError()
 
 
 def main():
     new_version = sys.argv[1]
     config = get_config()
+    print("Load type: ", config.type_)
     old_version = config.version
     config.version = new_version
 
