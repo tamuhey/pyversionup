@@ -1,10 +1,10 @@
-import sys
 import configparser
+import subprocess
+import sys
 from pathlib import Path
 from typing import Iterable
-import subprocess
 
-__version__ = "v0.0.3"
+__version__ = "0.0.3"
 
 
 def versionup(p: Path, old, new):
