@@ -1,8 +1,17 @@
 import configparser
 import subprocess
 import sys
+from dataclasses import dataclass
 from pathlib import Path
-from typing import ItemsView, Iterable, Mapping
+from typing import (
+    Iterable,
+    Literal,
+    Mapping,
+    NamedTuple,
+    Optional,
+)
+
+import toml
 
 __version__ = "0.0.3"
 
@@ -54,35 +63,48 @@ PYPROJECT = "pyproject.toml"
 VERSIONUP = "versionup"
 
 
-def get_oldversion(config: Mapping) -> str:
-    version = config.get("metadata", {}).get("version", "")
-    if not version:
-        version = config.get("tool", {}).get("poetry", {}).get("version", "")
-    if not version:
+@dataclass
+class Config(NamedTuple):
+    config: Mapping
+    type_: Literal["setup", "poetry"]
+
+    @property
+    def version(self) -> str:
+        if self.type_ == "setup":
+            return self.config["metadata"]["version"]
+        if self.type_ == "poetry":
+            return self.config["tool"]["poetry"]["version"]
         raise ValueError()
-    return version
+
+    @version.setter
+    def version(self, version: str):
+        if self.type_ == "setup":
+            self.config["metadata"]["version"] = version
+        if self.type_ == "poetry":
+            self.config["tool"]["poetry"]["version"] = version
+
+    @property
+    def versionup_config(self) -> Optional[Mapping]:
+        return self.config.get("versionup", None)
 
 
-import toml
-
-
-def get_config() -> Mapping:
+def get_config() -> Config:
     if Path(SETUP_CFG).exists():
         config = configparser.ConfigParser()
         config.read(SETUP_CFG)
-        return config
+        return Config(config, "setup")
     if Path(PYPROJECT).exists():
-        return toml.load(PYPROJECT)
+        return Config(toml.load(PYPROJECT), "poetry")
     raise ValueError()
 
 
 def main():
     new_version = sys.argv[1]
     config = get_config()
-    old_version = get_oldversion(config)
+    old_version = config.version
 
-    if VERSIONUP in config:
-        vcfg = config[VERSIONUP]
+    vcfg = config.versionup_config
+    if vcfg:
         files = vcfg.get("files")
         if files:
             files = list(filter(lambda x: x != "", files.split("\n")))
