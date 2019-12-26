@@ -17,7 +17,7 @@ from typing import (
 
 import toml
 
-__version__ = "v0.0.4.dev0"
+__version__ = "0.0.4"
 
 
 def versionup(p: Path, old, new):
