@@ -9,21 +9,21 @@ commit = true
 
 [tool.poetry]
 name = "pyversionup"
-version = "0.0.5"
+version = "0.0.6"
 description = ""
 authors = [ "Yohei Tamura <tamuhey@gmail.com>",]
 license = "MIT"
-packages = [{include="versionup.py"}]
+[[tool.poetry.packages]]
+include = "versionup.py"
 
 [tool.poetry.dependencies]
 python = "^3.7"
 toml = "^0.10.0"
 typing-extensions = "^3.7.4"
 
-[tool.poetry.dev-dependencies.black]
-version = "^19.10b0"
-allow-prereleases = true
-
 [tool.poetry.scripts]
 versionup = "versionup:main"
 
+[tool.poetry.dev-dependencies.black]
+version = "^19.10b0"
+allow-prereleases = true
