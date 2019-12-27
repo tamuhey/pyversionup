@@ -13,6 +13,7 @@ version = "0.0.5"
 description = ""
 authors = [ "Yohei Tamura <tamuhey@gmail.com>",]
 license = "MIT"
+packages = [{include="versionup.py"}]
 
 [tool.poetry.dependencies]
 python = "^3.7"
@@ -24,5 +25,5 @@ version = "^19.10b0"
 allow-prereleases = true
 
 [tool.poetry.scripts]
-version = "versionup"
+versionup = "versionup:main"
 
