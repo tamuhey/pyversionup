@@ -130,7 +130,7 @@ class Config:
 
     @property
     def tag_prefix(self) -> str:
-        return self.vcfg_attr.get("tag_prefix", "")
+        return self.vcfg_attr("tag_prefix", "")
 
     def vcfg_attr(self, key: str, default=False) -> Any:
         vcfg = self.versionup_config
