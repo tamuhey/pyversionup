@@ -9,7 +9,6 @@ from typing import (
     Iterable,
     List,
     Mapping,
-    NamedTuple,
     Optional,
     Union,
     cast,
@@ -129,6 +128,10 @@ class Config:
     def tag(self) -> bool:
         return self.vcfg_attr("tag")
 
+    @property
+    def tag_prefix(self) -> str:
+        return self.vcfg_attr.get("tag_prefix", "")
+
     def vcfg_attr(self, key: str, default=False) -> Any:
         vcfg = self.versionup_config
         return self.check_bool(vcfg.get(key, default), default=default)
@@ -167,7 +170,7 @@ def main():
             commit(old_version, new_version)
 
             if config.tag:
-                tag(new_version)
+                tag(config.tag_prefix + new_version)
 
 
 if __name__ == "__main__":
