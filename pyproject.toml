@@ -10,11 +10,10 @@ commit = true
 
 [tool.poetry]
 name = "pyversionup"
-version = "0.0.8"
+version = "0.0.9"
 description = ""
 authors = [ "Yohei Tamura <tamuhey@gmail.com>",]
 license = "MIT"
-
 [[tool.poetry.packages]]
 include = "versionup.py"
 
