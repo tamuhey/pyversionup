@@ -14,6 +14,7 @@ version = "0.0.8"
 description = ""
 authors = [ "Yohei Tamura <tamuhey@gmail.com>",]
 license = "MIT"
+
 [[tool.poetry.packages]]
 include = "versionup.py"
 

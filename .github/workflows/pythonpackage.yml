@@ -26,3 +26,8 @@ jobs:
     - name: Test with pytest
       run: |
         poetry run pytest
+    - name: Publish
+      if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
+      run: |
+        poetry build
+        poetry publish -u ${{ secrets.PYPI_USER }} -p ${{ secrets.PYPI_PASS }}
