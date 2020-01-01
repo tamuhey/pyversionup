@@ -18,13 +18,13 @@ license = "MIT"
 include = "versionup.py"
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.5"
 toml = "^0.10.0"
 typing-extensions = "^3.7.4"
 
 [tool.poetry.scripts]
 versionup = "versionup:main"
 
-[tool.poetry.dev-dependencies.black]
-version = "^19.10b0"
-allow-prereleases = true
+[tool.poetry.dev-dependencies]
+twine = "^1.5.0"
+pytest = "^5.3.2"
