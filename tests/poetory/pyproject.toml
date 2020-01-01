@@ -6,7 +6,7 @@ commit = true
 
 [tool.poetry]
 name = "foo"
-version = "1.1.1"
+version = "258445"
 description = ""
 authors = [ "Yohei Tamura <tamuhey@gmail.com>",]
 license = "MIT"
