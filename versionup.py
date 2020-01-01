@@ -130,7 +130,7 @@ class Config:
 
     @property
     def tag_prefix(self) -> str:
-        return self.vcfg_attr("tag_prefix", "")
+        return self.versionup_config.get("tag_prefix", "")
 
     def vcfg_attr(self, key: str, default=False) -> Any:
         vcfg = self.versionup_config
@@ -145,12 +145,12 @@ class Config:
 
 
 def get_config() -> Config:
+    if Path(PYPROJECT).exists():
+        return Config(toml.load(PYPROJECT), POETRY)
     if Path(SETUP_CFG).exists():
         config = configparser.ConfigParser()
         config.read(SETUP_CFG)
         return Config(config, SETUP)
-    if Path(PYPROJECT).exists():
-        return Config(toml.load(PYPROJECT), POETRY)
     raise ValueError()
 
 
