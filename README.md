@@ -7,15 +7,13 @@
 ## Install
 
 ```bash
-$ pip install git+https://github.com/tamuhey/pyversionup
-# specific version
-$ pip install git+https://github.com/tamuhey/pyversionup@v0.0.2
+$ pip install pyversionup
 ```
 
 ## Usage
 
 ```bash
-$ versionup v0.0.1
+$ versionup 0.0.1
 ```
 
 ## Config
