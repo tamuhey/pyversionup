@@ -9,7 +9,7 @@ import fire
 import toml
 from typing_extensions import Literal
 
-__version__ = "0.0.9"
+__version__ = "0.0.10"
 
 
 def versionup(p: Path, old, new):
@@ -151,9 +151,17 @@ def get_user_option(default, cli_option) -> bool:
     return cli_option if cli_option is not None else default
 
 
-def main(new_version: str, commit: Optional[bool] = None, tag: Optional[bool] = None):
-    new_version = sys.argv[1]
+def main(
+    new_version: str = "",
+    commit: Optional[bool] = None,
+    tag: Optional[bool] = None,
+    current: bool = False,
+):
     config = get_config()
+    if current:
+        print("Current version: ", config.version)
+        return
+    assert new_version, "no `new_version`"
     print("Load type: ", config.type_)
     old_version = config.version
     config.version = new_version

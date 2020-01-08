@@ -10,7 +10,7 @@ commit = true
 
 [tool.poetry]
 name = "pyversionup"
-version = "0.0.9"
+version = "0.0.10"
 description = ""
 authors = [ "Yohei Tamura <tamuhey@gmail.com>",]
 license = "MIT"
@@ -29,4 +29,7 @@ versionup = "versionup:main"
 [tool.poetry.dev-dependencies]
 twine = "^1.5.0"
 pytest = "^5.3.2"
-black = {version = "^19.10b0", allow-prereleases = true}
+
+[tool.poetry.dev-dependencies.black]
+version = "^19.10b0"
+allow-prereleases = true
