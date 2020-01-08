@@ -3,18 +3,11 @@ import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing_extensions import Literal
-from typing import (
-    Any,
-    Iterable,
-    List,
-    Mapping,
-    Optional,
-    Union,
-    cast,
-)
+from typing import Any, Iterable, List, Mapping, Optional, Union, cast
 
+import fire
 import toml
+from typing_extensions import Literal
 
 __version__ = "0.0.9"
 
@@ -45,7 +38,7 @@ def add(files: Iterable[str]):
     call(cmd)
 
 
-def commit(old_version, new_version):
+def git_commit(old_version, new_version):
     cmd = [
         "git",
         "commit",
@@ -56,7 +49,7 @@ def commit(old_version, new_version):
     call(cmd)
 
 
-def tag(tagname):
+def git_tag(tagname):
     cmd = ["git", "tag", tagname]
     call(cmd)
 
@@ -154,7 +147,11 @@ def get_config() -> Config:
     raise ValueError()
 
 
-def main():
+def get_user_option(default, cli_option) -> bool:
+    return cli_option if cli_option is not None else default
+
+
+def main(new_version: str, commit: Optional[bool] = None, tag: Optional[bool] = None):
     new_version = sys.argv[1]
     config = get_config()
     print("Load type: ", config.type_)
@@ -165,13 +162,14 @@ def main():
     vcfg = config.versionup_config
     if vcfg:
         rewrite_version(config.target_files, old_version, new_version)
-        if config.commit:
-            add([config.fname] + config.target_files)
-            commit(old_version, new_version)
 
-            if config.tag:
-                tag(config.tag_prefix + new_version)
+        if get_user_option(config.commit, commit):
+            add([config.fname] + config.target_files)
+            git_commit(old_version, new_version)
+
+            if get_user_option(config.tag, tag):
+                git_tag(config.tag_prefix + new_version)
 
 
 if __name__ == "__main__":
-    main()
+    fire.Fire(main)

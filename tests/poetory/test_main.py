@@ -1,3 +1,5 @@
+from typing import Optional
+from versionup import get_user_option
 import toml
 import pytest
 import sys
@@ -12,7 +14,7 @@ CONFFILE = "pyproject.toml"
 
 
 @pytest.fixture(params=[True, False])
-def tag(request):
+def _tag(request):
     return request.param
 
 
@@ -22,16 +24,16 @@ def tag_prefix(request):
 
 
 @pytest.fixture(params=[True, False])
-def commit(request):
+def _commit(request):
     return request.param
 
 
 @pytest.fixture
-def setup_conffile(tag, tag_prefix, commit):
+def setup_conffile(_tag, tag_prefix, _commit):
     cfg = toml.load(str(BASEDIR / CONFFILE))
-    cfg["versionup"]["tag"] = tag
+    cfg["versionup"]["tag"] = _tag
     cfg["versionup"]["tag_prefix"] = tag_prefix
-    cfg["versionup"]["commit"] = commit
+    cfg["versionup"]["commit"] = _commit
     with (BASEDIR / CONFFILE).open("w") as f:
         toml.dump(cfg, f)
 
@@ -44,10 +46,52 @@ def setup(setup_conffile):
     shutil.rmtree(str(BASEDIR / ".git"))
 
 
-def test_versionup(setup, tag, tag_prefix, commit):
+@pytest.fixture(params=[True, False, None])
+def cli_flag_commit(request):
+    return request.param
+
+
+@pytest.fixture(params=[True, False, None])
+def cli_flag_tag(request):
+    return request.param
+
+
+def get_cli_optional_flag_str(name: str, value: Optional[bool]) -> str:
+    if value is None:
+        return ""
+    if value:
+        return f"--{name}"
+    return f"--no{name}"
+
+
+@pytest.fixture
+def cli_optional_args(cli_flag_commit, cli_flag_tag):
+    return list(
+        filter(
+            lambda x: x != "",
+            (
+                get_cli_optional_flag_str(k, v)
+                for k, v in [("commit", cli_flag_commit), ("tag", cli_flag_tag)]
+            ),
+        )
+    )
+
+
+@pytest.fixture
+def commit(_commit, cli_flag_commit):
+    return get_user_option(_commit, cli_flag_commit)
+
+
+@pytest.fixture
+def tag(_tag, cli_flag_tag):
+    return get_user_option(_tag, cli_flag_tag)
+
+
+def test_versionup(setup, tag, tag_prefix, commit, cli_optional_args):
     new_version = str(random.randint(0, 1000000))
     result = subprocess.run(
-        [sys.executable, str(BASEDIR / "../../versionup.py"), new_version],
+        [sys.executable, str(BASEDIR / "../../versionup.py"), new_version]
+        + cli_optional_args,
         cwd=str(BASEDIR),
     )
     assert result.returncode == 0
