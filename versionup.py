@@ -9,7 +9,7 @@ import fire
 import toml
 from typing_extensions import Literal
 
-__version__ = "0.0.10"
+__version__ = "0.0.11"
 
 
 def versionup(p: Path, old, new):
@@ -179,5 +179,9 @@ def main(
                 git_tag(config.tag_prefix + new_version)
 
 
-if __name__ == "__main__":
+def cli():
     fire.Fire(main)
+
+
+if __name__ == "__main__":
+    cli()

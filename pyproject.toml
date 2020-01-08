@@ -10,7 +10,7 @@ commit = true
 
 [tool.poetry]
 name = "pyversionup"
-version = "0.0.10"
+version = "0.0.11"
 description = ""
 authors = [ "Yohei Tamura <tamuhey@gmail.com>",]
 license = "MIT"
@@ -24,7 +24,7 @@ typing-extensions = "^3.7.4"
 fire = "^0.2.1"
 
 [tool.poetry.scripts]
-versionup = "versionup:main"
+versionup = "versionup:cli"
 
 [tool.poetry.dev-dependencies]
 twine = "^1.5.0"
