@@ -3,13 +3,14 @@ import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Iterable, List, Mapping, Optional, Union, cast
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Union, cast
 
 import fire
 import toml
 from typing_extensions import Literal
 
 __version__ = "0.0.11"
+CONF = Union[configparser.ConfigParser, Dict]
 
 
 def versionup(p: Path, old, new):
@@ -90,6 +91,7 @@ class Config:
 
     @version.setter
     def version(self, version: str):
+        version = str(version)
         if self.type_ == SETUP:
             self.config["metadata"]["version"] = version
             return
@@ -100,7 +102,9 @@ class Config:
 
     @property
     def versionup_config(self) -> Optional[Mapping]:
-        return self.config.get("versionup", None)
+        if "versionup" in self.config:
+            return self.config["versionup"]
+        return None
 
     @property
     def target_files(self) -> List[str]:
@@ -157,6 +161,7 @@ def main(
     tag: Optional[bool] = None,
     current: bool = False,
 ):
+    new_version = str(new_version)
     config = get_config()
     if current:
         print("Current version: ", config.version)
