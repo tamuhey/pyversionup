@@ -9,7 +9,7 @@ import fire
 import toml
 from typing_extensions import Literal
 
-__version__ = "0.0.11"
+__version__ = "0.1.0"
 CONF = Union[configparser.ConfigParser, Dict]
 
 
