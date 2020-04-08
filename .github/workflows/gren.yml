@@ -1,5 +1,5 @@
 # Automatically update CHANGELOG.md and create release when tag is pushed
-name: Release
+name: Release notes
 
 on: 
   push:
@@ -17,8 +17,8 @@ jobs:
       with:
         node-version: 12.x
     - run: npm install github-release-notes -g
-    - run: gren release --override
-    - run: gren changelog --override
+    - run: gren release --override --token ${ GITHUB_TOKEN }
+    - run: gren changelog --override --token ${ GITHUB_TOKEN }
     - run: |
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
