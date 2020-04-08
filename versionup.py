@@ -8,7 +8,7 @@ import fire
 import toml
 from typing_extensions import Literal
 
-__version__ = "0.1.2"
+__version__ = "0.1.3.dev0"
 DEFAULT_MSG = "[versionup] $old_version -> $new_version"
 
 
@@ -136,6 +136,7 @@ def main(
     new_version = str(new_version)
     config = Config.load()
     print("Current version: ", config.version)
+    print("New version: ", new_version)
     if not new_version:
         return
     old_version = config.version
