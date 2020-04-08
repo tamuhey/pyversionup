@@ -9,7 +9,7 @@ import toml
 from typing_extensions import Literal
 
 
-__version__ = "0.1.4.dev13"
+__version__ = "0.1.5.dev13"
 DEFAULT_MSG = "[versionup] $old_version -> $new_version"
 
 
