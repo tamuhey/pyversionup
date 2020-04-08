@@ -127,12 +127,14 @@ def test_versionup(setup, tag, tag_prefix, commit, cli_optional_args, cwd, conff
 
     if commit:
         result = subprocess.run(
-            ["git", "rev-list", "--all", "--count"], cwd=str(cwd), capture_output=True,
+            ["git", "rev-list", "--all", "--count"],
+            cwd=str(cwd),
+            stdout=subprocess.PIPE,
         )
         assert result.stdout.decode().strip() == "2"
 
     if tag and commit:
         result = subprocess.run(
-            ["git", "describe", "--tags"], cwd=str(cwd), capture_output=True,
+            ["git", "describe", "--tags"], cwd=str(cwd), stdout=subprocess.PIPE,
         )
         assert result.stdout.decode().strip() == tag_prefix + new_version

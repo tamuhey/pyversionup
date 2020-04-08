@@ -2,11 +2,12 @@ import subprocess
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Mapping, Optional, Union, cast
+from typing import Any, Iterable, List, Mapping, Optional, Union
 
 import fire
 import toml
 from typing_extensions import Literal
+
 
 __version__ = "0.1.3.dev8"
 DEFAULT_MSG = "[versionup] $old_version -> $new_version"
@@ -24,7 +25,7 @@ def rewrite_version(filenames: Iterable[str], old, new):
 
 
 def call(cmd):
-    proc = subprocess.run(cmd, capture_output=True)
+    proc = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     print(proc.stdout.decode())
     print(proc.stderr.decode())
     proc.check_returncode()

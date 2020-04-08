@@ -1,12 +1,12 @@
 [tool.versionup]
 files = [ "foo.txt",]
-tag = false
-tag_prefix = ""
-commit = false
+tag = true
+tag_prefix = "foo/"
+commit = true
 
 [tool.poetry]
 name = "foo"
-version = "143803"
+version = "990468"
 description = ""
 authors = [ "Yohei Tamura <tamuhey@gmail.com>",]
 license = "MIT"
