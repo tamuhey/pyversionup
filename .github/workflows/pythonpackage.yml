@@ -2,10 +2,6 @@ name: test and publish
 
 on: 
   push:
-    branches:
-    tags:
-  create:
-    types: [tag]
 
 jobs:
   build:
