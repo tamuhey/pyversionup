@@ -13,20 +13,20 @@ jobs:
     - uses: actions/setup-node@v1
       with:
         node-version: 12.x
-    - run: npm install github-release-notes -g
-    - run: gren release --override --token ${{secrets.GITHUB_TOKEN}}
-    - run: gren changelog --override --token ${{secrets.GITHUB_TOKEN}} 
-    - name: commit
-      run: |
-        git remote add github "https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git"
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
-        git add .
-        git commit -m "Update dependencies"
-        git push github HEAD:${GITHUB_REF}
     - name: tag
       shell: bash
       run: |
         TAG=$(git log -1 --pretty=%B | cut -f 2 -d" " | head -1)
         git tag $TAG
         git push origin $TAG
+    - run: npm install github-release-notes -g
+    - run: gren changelog --override --token ${{secrets.GITHUB_TOKEN}} 
+    - run: gren release --override --token ${{secrets.GITHUB_TOKEN}}
+    - name: commit
+      run: |
+        git remote add github "https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git"
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add .
+        git commit -m "Update Changelog"
+        git push github HEAD:${GITHUB_REF}
