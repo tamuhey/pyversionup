@@ -8,7 +8,7 @@ import fire
 import toml
 from typing_extensions import Literal
 
-__version__ = "0.1.3.dev7"
+__version__ = "0.1.3.dev8"
 DEFAULT_MSG = "[versionup] $old_version -> $new_version"
 
 
