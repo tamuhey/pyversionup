@@ -131,15 +131,13 @@ def main(
     new_version: str = "",
     commit: Optional[bool] = None,
     tag: Optional[bool] = None,
-    current: bool = False,
     message: str = "",
 ):
     new_version = str(new_version)
     config = Config.load()
     print("Current version: ", config.version)
-    if current:
+    if not new_version:
         return
-    assert new_version, "no `new_version`"
     old_version = config.version
     config.version = new_version
     config.save()
