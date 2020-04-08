@@ -1,8 +1,5 @@
-from os import write
-from typing import Mapping, Optional
+from typing import Any, Dict, Optional
 import toml
-from configparser import ConfigParser
-from versionup import CONF, get_user_option
 import configparser
 import pytest
 import sys
@@ -13,9 +10,7 @@ import shutil
 
 
 BASEDIR = Path(__file__).parent
-CONFFILE = "setup.cfg"
 CONF_TYPES = {
-    "setup.cfg": ("setup.cfg", BASEDIR / "setup_cfg"),
     "poetry": ("pyproject.toml", BASEDIR / "poetry"),
 }
 
@@ -32,7 +27,7 @@ def cwd(conftype) -> Path:
 
 @pytest.fixture
 def conffile(conftype) -> Path:
-    return CONF_TYPES[conftype][0]
+    return Path(CONF_TYPES[conftype][0])
 
 
 @pytest.fixture(params=[True, False])
@@ -50,40 +45,23 @@ def _commit(request):
     return request.param
 
 
-def load_cfg(conftype: str, fpath: str) -> CONF:
-    if conftype == "setup.cfg":
-        cfg = configparser.ConfigParser()
-        cfg.read(fpath)
-    elif conftype == "poetry":
-        cfg = toml.load(fpath)
-    else:
-        raise ValueError
+def load_cfg(conftype: str, fpath: str) -> Dict[str, Any]:
+    cfg = toml.load(fpath)
     return cfg
 
 
-def write_cfg(cfg: CONF, conftype: str, fpath: str):
+def write_cfg(cfg: Dict[str, Any], conftype: str, fpath: str):
     with open(str(fpath), "w") as f:
-        if conftype == "setup.cfg":
-            cfg.write(f)
-        elif conftype == "poetry":
-            toml.dump(cfg, f)
-        else:
-            raise ValueError
-
-
-def boollike(conftype: str, b: bool):
-    if conftype == "setup.cfg":
-        return str(b).lower()
-    return b
+        toml.dump(cfg, f)
 
 
 @pytest.fixture
 def setup_conffile(_tag, tag_prefix, _commit, conftype, cwd, conffile):
     confpath = str(cwd / conffile)
     cfg = load_cfg(conftype, confpath)
-    cfg["versionup"]["tag"] = boollike(conftype, _tag)
-    cfg["versionup"]["tag_prefix"] = tag_prefix
-    cfg["versionup"]["commit"] = boollike(conftype, _commit)
+    cfg["tool"]["versionup"]["tag"] = _tag
+    cfg["tool"]["versionup"]["tag_prefix"] = tag_prefix
+    cfg["tool"]["versionup"]["commit"] = _commit
     write_cfg(cfg, conftype, confpath)
 
 
@@ -128,12 +106,12 @@ def cli_optional_args(cli_flag_commit, cli_flag_tag):
 
 @pytest.fixture
 def commit(_commit, cli_flag_commit):
-    return get_user_option(_commit, cli_flag_commit)
+    return cli_flag_commit or _commit
 
 
 @pytest.fixture
 def tag(_tag, cli_flag_tag):
-    return get_user_option(_tag, cli_flag_tag)
+    return cli_flag_tag or _tag
 
 
 def test_versionup(setup, tag, tag_prefix, commit, cli_optional_args, cwd, conffile):
@@ -149,13 +127,14 @@ def test_versionup(setup, tag, tag_prefix, commit, cli_optional_args, cwd, conff
 
     if commit:
         result = subprocess.run(
-            ["git", "rev-list", "--all", "--count"], cwd=str(cwd), capture_output=True,
+            ["git", "rev-list", "--all", "--count"],
+            cwd=str(cwd),
+            stdout=subprocess.PIPE,
         )
         assert result.stdout.decode().strip() == "2"
 
     if tag and commit:
         result = subprocess.run(
-            ["git", "describe", "--tags"], cwd=str(cwd), capture_output=True,
+            ["git", "describe", "--tags"], cwd=str(cwd), stdout=subprocess.PIPE,
         )
         assert result.stdout.decode().strip() == tag_prefix + new_version
-

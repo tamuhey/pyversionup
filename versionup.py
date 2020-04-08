@@ -1,37 +1,34 @@
-import configparser
 import subprocess
-import sys
+import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Mapping, Optional, Union, cast
+from typing import Any, Iterable, List, Mapping, Optional, Union
 
 import fire
 import toml
 from typing_extensions import Literal
 
-__version__ = "0.1.1"
-CONF = Union[configparser.ConfigParser, Dict]
+
+__version__ = "0.1.3.dev13"
+DEFAULT_MSG = "[versionup] $old_version -> $new_version"
 
 
 def versionup(p: Path, old, new):
-    with p.open() as f:
-        text = f.read()
-    with p.open("w") as f:
-        f.write(text.replace(old, new))
+    text = p.read_text()
+    p.write_text(re.sub(r"\b" + old + r"\b", new, text))
 
 
 def rewrite_version(filenames: Iterable[str], old, new):
     for fname in filenames:
-        if fname:
-            p = Path(fname)
-            versionup(p, old, new)
-            print(f"Update: {str(p)}")
+        versionup(Path(fname), old, new)
+        print(f"Update: {fname}")
 
 
 def call(cmd):
-    proc = subprocess.run(cmd, capture_output=True)
+    proc = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     print(proc.stdout.decode())
     print(proc.stderr.decode())
+    proc.check_returncode()
 
 
 def add(files: Iterable[str]):
@@ -39,13 +36,20 @@ def add(files: Iterable[str]):
     call(cmd)
 
 
-def git_commit(old_version, new_version):
+def create_message(old_version: str, new_version: str, message: str) -> str:
+    replace = {r"\$old_version\b": old_version, r"\$new_version\b": new_version}
+    for a, b in replace.items():
+        message = re.sub(a, b, message)
+    return message
+
+
+def git_commit(old_version: str, new_version: str, message: str):
     cmd = [
         "git",
         "commit",
         "--allow-empty",
         "-m",
-        f'"versionup: {old_version} -> {new_version}"',
+        create_message(old_version, new_version, message),
     ]
     call(cmd)
 
@@ -55,67 +59,46 @@ def git_tag(tagname):
     call(cmd)
 
 
-SETUP_CFG = "setup.cfg"
-PYPROJECT = "pyproject.toml"
 VERSIONUP = "versionup"
 POETRY = "poetry"
-SETUP = "setup"
-
-FNAME = {SETUP: SETUP_CFG, POETRY: PYPROJECT}
+PYPROJECT_TOML = "pyproject.toml"
 
 
 @dataclass
 class Config:
     config: Mapping
-    type_: Literal["setup", "poetry"]
 
     def save(self):
-        if self.type_ == SETUP:
-            with open(SETUP_CFG, "w") as f:
-                cast(configparser.ConfigParser, self.config).write(f)
-        if self.type_ == POETRY:
-            with open(PYPROJECT, "w") as f:
-                toml.dump(self.config, f)
+        with open(PYPROJECT_TOML, "w") as f:
+            toml.dump(self.config, f)
 
-    @property
-    def fname(self) -> str:
-        return FNAME[self.type_]
+    @classmethod
+    def load(cls) -> "Config":
+        if Path(PYPROJECT_TOML).exists():
+            return Config(toml.load(PYPROJECT_TOML))
+        raise ValueError(f"{PYPROJECT_TOML} not found")
 
     @property
     def version(self) -> str:
-        if self.type_ == SETUP:
-            return self.config["metadata"]["version"]
-        if self.type_ == POETRY:
-            return self.config["tool"][POETRY]["version"]
-        raise ValueError()
+        return self.config["tool"][POETRY]["version"]
 
     @version.setter
     def version(self, version: str):
-        version = str(version)
-        if self.type_ == SETUP:
-            self.config["metadata"]["version"] = version
-            return
-        if self.type_ == POETRY:
-            self.config["tool"][POETRY]["version"] = version
-            return
-        raise ValueError()
+        self.config["tool"][POETRY]["version"] = version
 
     @property
     def versionup_config(self) -> Optional[Mapping]:
-        if "versionup" in self.config:
-            return self.config["versionup"]
+        if "tool" in self.config:
+            return self.config["tool"].get("versionup", None)
         return None
 
     @property
     def target_files(self) -> List[str]:
         config = self.versionup_config
+        files = [PYPROJECT_TOML]
         if config:
-            files: Union[str, List[str], None] = config.get("files")
-            if isinstance(files, str):
-                files = list(filter(lambda x: x != "", files.split("\n")))
-            if files:
-                return files
-        return []
+            files: List[str] = files + config.get("files", [])
+        return files
 
     @property
     def commit(self) -> bool:
@@ -129,6 +112,10 @@ class Config:
     def tag_prefix(self) -> str:
         return self.versionup_config.get("tag_prefix", "")
 
+    @property
+    def message(self) -> str:
+        return self.versionup_config.get("message", DEFAULT_MSG)
+
     def vcfg_attr(self, key: str, default=False) -> Any:
         vcfg = self.versionup_config
         return self.check_bool(vcfg.get(key, default), default=default)
@@ -141,33 +128,18 @@ class Config:
         return default
 
 
-def get_config() -> Config:
-    if Path(PYPROJECT).exists():
-        return Config(toml.load(PYPROJECT), POETRY)
-    if Path(SETUP_CFG).exists():
-        config = configparser.ConfigParser()
-        config.read(SETUP_CFG)
-        return Config(config, SETUP)
-    raise ValueError()
-
-
-def get_user_option(default, cli_option) -> bool:
-    return cli_option if cli_option is not None else default
-
-
 def main(
     new_version: str = "",
     commit: Optional[bool] = None,
     tag: Optional[bool] = None,
-    current: bool = False,
+    message: str = "",
 ):
     new_version = str(new_version)
-    config = get_config()
-    if current:
-        print("Current version: ", config.version)
+    config = Config.load()
+    print("Current version: ", config.version)
+    print("New version: ", new_version)
+    if not new_version:
         return
-    assert new_version, "no `new_version`"
-    print("Load type: ", config.type_)
     old_version = config.version
     config.version = new_version
     config.save()
@@ -175,12 +147,11 @@ def main(
     vcfg = config.versionup_config
     if vcfg:
         rewrite_version(config.target_files, old_version, new_version)
+        if commit or config.commit:
+            add(config.target_files)
+            git_commit(old_version, new_version, message or config.message)
 
-        if get_user_option(config.commit, commit):
-            add([config.fname] + config.target_files)
-            git_commit(old_version, new_version)
-
-            if get_user_option(config.tag, tag):
+            if tag or config.tag:
                 git_tag(config.tag_prefix + new_version)
 
 

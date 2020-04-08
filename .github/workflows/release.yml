@@ -1,0 +1,32 @@
+# Automatically update CHANGELOG.md and create release when tag is pushed
+name: Release
+
+on: 
+  push:
+    branches:
+
+jobs:
+  release:
+    if: contains(github.event.head_commit.message, '[versionup]') == true && !(startsWith(github.event.ref, 'refs/tags'))
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        token: ${{secrets.TOKEN}}
+    - uses: actions/setup-node@v1
+      with:
+        node-version: 12.x
+    - name: tag
+      shell: bash
+      run: |
+        TAG=$(git log -1 --pretty=%B | cut -f 4 -d" " | head -1)
+        git tag $TAG
+        git push origin $TAG
+    - run: npm install github-release-notes -g
+    - run: gren changelog --override --token ${{secrets.TOKEN}} 
+    - run: gren release --override --token ${{secrets.TOKEN}}
+    - name: commit
+      run: |
+        git add .
+        git commit -m "Update Changelog"
+        git push github HEAD:${GITHUB_REF}
