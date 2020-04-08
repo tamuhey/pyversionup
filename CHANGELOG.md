@@ -1,5 +1,30 @@
 # Changelog
 
+## 0.1.4 (08/04/2020)
+*No changelog for this release.*
+
+---
+
+## 0.1.3 (08/04/2020)
+*No changelog for this release.*
+
+---
+
+## 0.1.3.dev25 (08/04/2020)
+*No changelog for this release.*
+
+---
+
+## 0.1.13.dev22 (08/04/2020)
+*No changelog for this release.*
+
+---
+
+## 0.1.3.dev21 (08/04/2020)
+*No changelog for this release.*
+
+---
+
 ## 0.1.3.dev20 (08/04/2020)
 *No changelog for this release.*
 
