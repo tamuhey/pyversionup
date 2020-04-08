@@ -2,11 +2,11 @@
 files = [ "foo.txt",]
 tag = true
 tag_prefix = "foo/"
-commit = true
+commit = false
 
 [tool.poetry]
 name = "foo"
-version = "990468"
+version = "944251"
 description = ""
 authors = [ "Yohei Tamura <tamuhey@gmail.com>",]
 license = "MIT"
