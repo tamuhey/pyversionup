@@ -14,8 +14,8 @@ jobs:
       with:
         node-version: 12.x
     - run: npm install github-release-notes -g
-    - run: gren release --override --token ${ GITHUB_TOKEN }
-    - run: gren changelog --override --token ${ GITHUB_TOKEN }
+    - run: gren release --override --token ${{secrets.GITHUB_TOKEN}}
+    - run: gren changelog --override --token ${{secrets.GITHUB_TOKEN}} 
     - name: commit
       run: |
         git remote add github "https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git"
