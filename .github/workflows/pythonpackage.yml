@@ -1,4 +1,4 @@
-name: Python package
+name: test and publish
 
 on: [push]
 
@@ -9,7 +9,7 @@ jobs:
     strategy:
       max-parallel: 4
       matrix:
-        python-version: [3.5, 3.6, 3.7, 3.8]
+        python-version: [3.6, 3.7, 3.8]
         os: [ubuntu-latest, macos-latext ]
 
     steps:
