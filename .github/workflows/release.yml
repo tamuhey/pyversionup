@@ -1,5 +1,5 @@
 # Automatically update CHANGELOG.md and create release when tag is pushed
-name: Release notes
+name: Release
 
 on: 
   push:
@@ -19,11 +19,17 @@ jobs:
     - run: npm install github-release-notes -g
     - run: gren release --override --token ${ GITHUB_TOKEN }
     - run: gren changelog --override --token ${ GITHUB_TOKEN }
-    - run: |
+    - name: commit
+      run: |
+        git remote add github "https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git"
         git config --local user.email "action@github.com"
         git config --local user.name "GitHub Action"
-        git remote add github "https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git"
         git add .
         git commit -m "Update dependencies"
         git push github HEAD:${GITHUB_REF}
-
+    - name: tag
+      shell: bash
+      run: |
+        TAG=$(git log -1 --pretty=%B | cut -f 2 -d" " | head -1)
+        git tag $TAG
+        git push origin $TAG
