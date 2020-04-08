@@ -1,4 +1,4 @@
-# Automatically update CHANGELOG.md and create release when tag is pushed
+# Automatically update CHANGELOG.md and create release when [versionup] commit pushed
 name: Release
 
 on: 
