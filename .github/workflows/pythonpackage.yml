@@ -1,6 +1,11 @@
 name: test and publish
 
-on: [push]
+on: 
+  push:
+    branches:
+      - '**'
+    tags:
+      - '**'
 
 jobs:
   build:
