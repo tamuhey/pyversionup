@@ -15,7 +15,7 @@ jobs:
       with:
         node-version: 12.x
     - run: |
-        git config --global user.email "tamuhey@gmail.com"
+        git config --global user.email "action@github.com"
         git config --global user.name "GitHub Action"
         git remote add github "https://$GITHUB_ACTOR:$GITHUB_TOKEN@github.com/$GITHUB_REPOSITORY.git"
     - name: tag
