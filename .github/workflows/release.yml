@@ -21,7 +21,7 @@ jobs:
     - name: tag
       shell: bash
       run: |
-        TAG=$(git log -1 --pretty=%B | cut -f 2 -d" " | head -1)
+        TAG=$(git log -1 --pretty=%B | cut -f 4 -d" " | head -1)
         git tag $TAG
         git push origin $TAG
     - run: npm install github-release-notes -g
