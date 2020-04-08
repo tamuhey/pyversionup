@@ -3,12 +3,11 @@ name: Release
 
 on: 
   push:
-    tags-ignore:
-      - '**'
+    branches:
 
 jobs:
   release:
-    if: contains(github.event.head_commit.message, '[versionup]') == true
+    if: contains(github.event.head_commit.message, '[versionup]') == true && !(startsWith(github.event.ref, 'refs/tags'))
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
