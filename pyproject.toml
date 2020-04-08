@@ -5,6 +5,7 @@ build-backend = "poetry.masonry.api"
 [tool.versionup]
 files = [ "versionup.py",]
 commit = true
+tag = true
 
 [tool.poetry]
 name = "pyversionup"
