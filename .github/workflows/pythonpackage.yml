@@ -3,9 +3,9 @@ name: test and publish
 on: 
   push:
     branches:
-      - '**'
     tags:
-      - '**'
+  created:
+    tags:
 
 jobs:
   build:
