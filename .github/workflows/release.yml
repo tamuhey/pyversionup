@@ -6,7 +6,7 @@ on:
 
 jobs:
   test:
-    if: contains(github.event.head_commit.message, '[versionup]') == false
+    if: contains(github.event.head_commit.message, '[versionup]') == true
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
