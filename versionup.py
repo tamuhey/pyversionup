@@ -15,7 +15,7 @@ DEFAULT_MSG = "[versionup] $old_version -> $new_version"
 
 def versionup(p: Path, old, new):
     text = p.read_text()
-    p.write_text(text.replace(old, new))
+    p.write_text(re.sub("\b" + old + "\b", new, text))
 
 
 def rewrite_version(filenames: Iterable[str], old, new):
