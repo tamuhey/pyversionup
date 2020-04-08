@@ -8,7 +8,7 @@ commit = true
 
 [tool.poetry]
 name = "pyversionup"
-version = "0.1.3"
+version = "0.1.4"
 description = ""
 authors = [ "Yohei Tamura <tamuhey@gmail.com>",]
 license = "MIT"
