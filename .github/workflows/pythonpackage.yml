@@ -25,6 +25,8 @@ jobs:
         poetry install
     - name: Test with pytest
       run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
         poetry run pytest
     - name: Publish
       if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
