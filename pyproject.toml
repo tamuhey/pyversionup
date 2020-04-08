@@ -20,9 +20,9 @@ python = "^3.6"
 toml = "^0.10.0"
 typing-extensions = "^3.7.4"
 fire = "^0.2.1"
-dataclasses = [
-    {version = "*", python = "<3.7"}
-]
+[[tool.poetry.dependencies.dataclasses]]
+version = "*"
+python = "<3.7"
 
 [tool.poetry.scripts]
 versionup = "versionup:cli"
