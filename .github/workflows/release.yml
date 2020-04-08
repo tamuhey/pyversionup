@@ -18,6 +18,12 @@ jobs:
         git config --global user.email "action@github.com"
         git config --global user.name "GitHub Action"
         git remote add github "https://$GITHUB_ACTOR:${{secrets.TOKEN}}@github.com/$GITHUB_REPOSITORY.git"
+    - name: tag
+      shell: bash
+      run: |
+        TAG=$(git log -1 --pretty=%B | cut -f 2 -d" " | head -1)
+        git tag $TAG
+        git push origin $TAG
     - run: npm install github-release-notes -g
     - run: gren changelog --override --token ${{secrets.TOKEN}} 
     - run: gren release --override --token ${{secrets.TOKEN}}
