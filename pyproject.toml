@@ -9,7 +9,7 @@ tag = true
 
 [tool.poetry]
 name = "pyversionup"
-version = "0.1.3.dev13"
+version = "0.1.3.dev14"
 description = ""
 authors = [ "Yohei Tamura <tamuhey@gmail.com>",]
 license = "MIT"
@@ -21,7 +21,6 @@ python = "^3.6"
 toml = "*"
 typing-extensions = "^3.7.4"
 fire = "^0.2.1"
-
 [[tool.poetry.dependencies.dataclasses]]
 version = "*"
 python = "<3.7"
