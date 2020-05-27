@@ -10,6 +10,12 @@
 $ pip install pyversionup
 ```
 
+- from master
+
+```bash
+$ pip install -U git+https://github.com/tamuhey/pyversionup
+```
+
 ## Usage
 
 ```bash
