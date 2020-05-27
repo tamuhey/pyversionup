@@ -9,7 +9,7 @@ import toml
 from typing_extensions import Literal
 
 
-__version__ = "0.1.5.dev13"
+__version__ = "0.1.6"
 DEFAULT_MSG = "[versionup] $old_version -> $new_version"
 
 
@@ -133,13 +133,17 @@ def main(
     commit: Optional[bool] = None,
     tag: Optional[bool] = None,
     message: str = "",
+    version: bool = False,
 ):
+    if version:
+        print(__version__)
+        return
     new_version = str(new_version)
     config = Config.load()
     print("Current version: ", config.version)
-    print("New version: ", new_version)
     if not new_version:
         return
+    print("New version: ", new_version)
     old_version = config.version
     config.version = new_version
     config.save()
