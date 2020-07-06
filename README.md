@@ -24,13 +24,11 @@ $ versionup 0.0.1
 
 ## Config
 
-Write config in `setup.cfg`.
+Write config in `pyproject.toml`.
 Example:
 
 ```
-[versionup]
-files = 
-  src/VERSION.py
-tag = True
-commit = True
+[tool.versionup]
+files = [ "camphr/VERSION.py",]
+commit = true
 ```
