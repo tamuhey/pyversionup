@@ -29,6 +29,6 @@ Example:
 
 ```
 [tool.versionup]
-files = [ "camphr/VERSION.py",]
+files = [ "my_pkg/VERSION.py",]
 commit = true
 ```
