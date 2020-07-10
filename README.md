@@ -1,8 +1,8 @@
 # Versionup cli for Python
 
 - rewrite version name in `pyproject.toml`
-- (optional) commit and add version tag
-- (optional) rewrite version name in specified files
+- (optional) commit and add a version tag
+- (optional) rewrite version string in specified files
 
 ## Install
 
